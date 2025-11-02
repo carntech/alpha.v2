@@ -1,0 +1,73 @@
+#!/bin/bash
+# //====================================================
+# //   System Request:Debian 9+/Ubuntu 18.04+/20+
+# //====================================================
+Green="\e[92;1m"
+RED="\033[31m"
+NC='\033[0m'
+OR='\033[1;93m'
+gg='\e[1;77m' #ijo tebel
+ipsaya=$(wget -qO- ipinfo.io/ip)
+data_server=$(curl -v --insecure --silent https://google.com/ 2>&1 | grep Date | sed -e 's/< Date: //')
+date_list=$(date +"%Y-%m-%d" -d "$data_server")
+data_ip="https://raw.githubusercontent.com/carntech/ijin/refs/heads/main/alpha"
+domain=$(cat /etc/xray/domain)
+
+checking_sc() {
+  useexp=$(wget -qO- $data_ip | grep $ipsaya | awk '{print $3}')
+  if [[ $date_list < $useexp ]]; then
+    echo -ne
+  else
+    # Menggunakan lolcat untuk pesan error juga
+    echo -e "────────────────────────────────────────────" | lolcat
+    echo -e "        404 NOT FOUND AUTOSCRIPT        " | lolcat
+    echo -e "────────────────────────────────────────────" | lolcat
+    echo -e ""
+    echo -e "              PERMISSION DENIED !" | lolcat
+    echo -e "     Your VPS $ipsaya Has been Banned" | lolcat
+    echo -e "      Buy access permissions for scripts" | lolcat
+    echo -e "              Contact Admin :" | lolcat
+    echo -e "     WEBSITE https://Synch.id/" | lolcat
+    echo -e "     SYCNH  server-store" | lolcat
+    echo -e "────────────────────────────────────────────" | lolcat
+    exit
+  fi
+}
+checking_sc
+clear
+
+echo -e " ──────────────────────────────────────" | lolcat
+echo -e "     MEMBER VMESS ACCOUNT" | lolcat
+echo -e " ──────────────────────────────────────" | lolcat
+
+# PERBAIKAN: Perintah ini sangat berbahaya karena menghapus log. Dinonaktifkan.
+# PERBAIKAN: Nama file 'accsess.log' diubah menjadi 'access.log'
+# echo -n > /var/log/xray/access.log
+
+# Menggunakan counter yang lebih efisien daripada menulis ke file
+aktif=0
+data=( `cat /etc/xray/config.json | grep '###' | cut -d ' ' -f 2 | sort | uniq`);
+for user in "${data[@]}"
+do
+  # Menambahkan pengecekan jika user ada
+  if grep -qwE "^### $user" "/etc/xray/config.json"; then
+    exp=$(grep -wE "^### $user" "/etc/xray/config.json" | cut -d ' ' -f 3 | sort | uniq)
+    lquota=$(cat /etc/limit/vmess/${user} 2>/dev/null) # Menambahkan 2>/dev/null untuk handle error jika file tidak ada
+    
+    echo -e "Username  : $user" | lolcat
+    # Menampilkan "unlimited" jika file kuota kosong atau tidak ada
+    if [[ -z "$lquota" ]]; then
+      echo -e "Limit     : unlimited" | lolcat
+    else
+      echo -e "Limit     : $lquota GB" | lolcat
+    fi
+    echo -e "Expired   : $exp" | lolcat
+    echo -e "──────────────────────────────────────" | lolcat
+    ((aktif++))
+  fi
+  sleep 0.1
+done
+
+echo -e "         $aktif Member Aktif" | lolcat
+echo -e "──────────────────────────────────────" | lolcat
+echo -e ""
